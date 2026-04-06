@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import { srInterval } from './utils'
 
-const USER_ID = 'emmanuel'
+const USER_ID = 'michael'
 
 function todayISO() {
   const d = new Date()

@@ -1,10 +1,10 @@
 -- Single user ID constant
--- All rows use user_id = 'emmanuel'
+-- All rows use user_id = 'michael'
 
 -- Progress table (solved, starred, notes, spaced repetition)
 CREATE TABLE IF NOT EXISTS progress (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   question_id INTEGER NOT NULL,
   solved BOOLEAN DEFAULT FALSE,
   starred BOOLEAN DEFAULT FALSE,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS progress (
 -- Activity log (daily activity count for heatmap)
 CREATE TABLE IF NOT EXISTS activity_log (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   date DATE NOT NULL,
   count INTEGER DEFAULT 0,
   UNIQUE(user_id, date)
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
 -- Solved log (daily solved count for heatmap coloring)
 CREATE TABLE IF NOT EXISTS solved_log (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   date DATE NOT NULL,
   count INTEGER DEFAULT 0,
   UNIQUE(user_id, date)
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS solved_log (
 -- Flashcard visited (array of question IDs visited)
 CREATE TABLE IF NOT EXISTS fc_visited (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   question_ids INTEGER[] DEFAULT '{}',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id)
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS fc_visited (
 -- Behavioral visited
 CREATE TABLE IF NOT EXISTS behavioral_visited (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   question_ids INTEGER[] DEFAULT '{}',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id)
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS behavioral_visited (
 -- Gems visited
 CREATE TABLE IF NOT EXISTS gems_visited (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   card_ids TEXT[] DEFAULT '{}',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id)
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS gems_visited (
 -- Pattern flashcard visited
 CREATE TABLE IF NOT EXISTS pattern_fc_visited (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   question_ids INTEGER[] DEFAULT '{}',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id)
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS pattern_fc_visited (
 -- Study plan
 CREATE TABLE IF NOT EXISTS study_plan (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   start_date DATE NOT NULL,
   per_day INTEGER DEFAULT 3,
   question_order INTEGER[] NOT NULL,
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS study_plan (
 -- Daily target
 CREATE TABLE IF NOT EXISTS daily_target (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   target INTEGER DEFAULT 0,
   lock_code TEXT DEFAULT '',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS daily_target (
 -- Practice sessions (saved code per question)
 CREATE TABLE IF NOT EXISTS practice_sessions (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   question_id INTEGER NOT NULL,
   language TEXT DEFAULT 'python',
   code TEXT DEFAULT '',
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS practice_sessions (
 -- Time tracking (seconds spent per question)
 CREATE TABLE IF NOT EXISTS time_tracking (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   question_id INTEGER NOT NULL,
   seconds INTEGER DEFAULT 0,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS time_tracking (
 -- Mock interview sessions
 CREATE TABLE IF NOT EXISTS mock_sessions (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   question_id INTEGER NOT NULL,
   duration_minutes INTEGER,
   outcome TEXT, -- 'solved' | 'gave_up' | 'timeout'
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS mock_sessions (
 -- Interview date (for countdown)
 CREATE TABLE IF NOT EXISTS interview_date (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   target_date DATE,
   company TEXT,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS interview_date (
 -- User settings (LeetCode session credentials, etc.)
 CREATE TABLE IF NOT EXISTS user_settings (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   lc_session TEXT DEFAULT '',
   lc_csrf TEXT DEFAULT '',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS user_settings (
 -- FC daily log (flashcards viewed per day)
 CREATE TABLE IF NOT EXISTS fc_daily_log (
   id SERIAL PRIMARY KEY,
-  user_id TEXT NOT NULL DEFAULT 'emmanuel',
+  user_id TEXT NOT NULL DEFAULT 'michael',
   date DATE NOT NULL,
   question_ids INTEGER[] DEFAULT '{}',
   UNIQUE(user_id, date)
@@ -158,6 +158,6 @@ CREATE TABLE IF NOT EXISTS fc_daily_log (
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- ROW LEVEL SECURITY
--- Single-user app: all rows restricted to user_id = 'emmanuel'
+-- Single-user app: all rows restricted to user_id = 'michael'
 -- Run rls.sql in the Supabase SQL Editor to apply these.
 -- ─────────────────────────────────────────────────────────────────────────────

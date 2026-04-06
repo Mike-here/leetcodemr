@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-const USER_ID = 'emmanuel'
+const USER_ID = 'michael'
 const TZ = 'America/Chicago'
 
 function todayCT() {
@@ -249,7 +249,7 @@ export async function GET(req: NextRequest) {
 
   const { data: emailData, error } = await resend.emails.send({
     from: 'LeetMastery <onboarding@resend.dev>',
-    to: [process.env.NOTIFICATION_EMAIL!, 'emmanuelopponga07@gmail.com'],
+    to: [process.env.NOTIFICATION_EMAIL!, 'macheampong287@gmail.com'],
     subject: subjects[tod],
     html,
   })
