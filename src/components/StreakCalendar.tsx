@@ -1,0 +1,140 @@
+'use client'
+import { useMemo, useRef, useEffect } from 'react'
+
+function utcKey(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`
+}
+
+function getWeeks(log: Record<string, number>) {
+  // Use UTC dates throughout so keys match how db.ts stores dates (new Date().toISOString().split('T')[0])
+  const now = new Date()
+  const todayKey = utcKey(now)
+  const todayUTC = new Date(todayKey + 'T00:00:00Z')  // UTC midnight of today
+
+  const startUTC = new Date(todayUTC)
+  startUTC.setUTCDate(startUTC.getUTCDate() - (51 * 7 + todayUTC.getUTCDay()))
+
+  const weeks: { key: string; count: number; date: Date }[][] = []
+  const d = new Date(startUTC)
+  while (utcKey(d) <= todayKey) {
+    const week: { key: string; count: number; date: Date }[] = []
+    for (let i = 0; i < 7; i++) {
+      const key = utcKey(d)
+      const future = key > todayKey
+      week.push({ key, count: future ? -1 : (log[key] || 0), date: new Date(d) })
+      d.setUTCDate(d.getUTCDate() + 1)
+    }
+    weeks.push(week)
+  }
+  return weeks
+}
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+const CELL    = 12
+const GAP     = 2
+const DAY_COL = 18
+
+interface StreakCalendarProps {
+  log?: Record<string, number>
+  target?: number
+}
+
+export default function StreakCalendar({ log = {}, target = 0 }: StreakCalendarProps) {
+  const weeks    = useMemo(() => getWeeks(log), [log])
+  const maxCount = useMemo(() => Math.max(1, ...Object.values(log).filter(v => v > 0)), [log])
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  // On mount — snap to the right so most recent months are visible
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth
+    }
+  }, [weeks])
+
+  const colWidth = CELL + GAP
+
+  function cellColor(count: number) {
+    if (count < 0) return 'bg-gray-50'
+    if (count === 0) return 'bg-gray-100'
+    if (target > 0) {
+      if (count >= target)          return 'bg-green-500'
+      if (count >= target - 1)      return 'bg-yellow-400'
+      return 'bg-red-400'
+    }
+    const intensity = Math.min(count / Math.max(maxCount, 1), 1)
+    if (intensity < 0.35) return 'bg-green-300'
+    if (intensity < 0.6)  return 'bg-green-500'
+    if (intensity < 0.85) return 'bg-green-600'
+    return 'bg-green-700'
+  }
+
+  const monthLabels: { wi: number; label: string }[] = []
+  weeks.forEach((week, wi) => {
+    const firstDay = week.find(d => d.count >= 0)
+    if (firstDay) {
+      const m = firstDay.date.getUTCMonth()
+      const prev = wi > 0 ? weeks[wi - 1].find(d => d.count >= 0) : null
+      if (!prev || prev.date.getUTCMonth() !== m) {
+        const lastLabel = monthLabels[monthLabels.length - 1]
+        if (!lastLabel || wi - lastLabel.wi >= 3) {
+          monthLabels.push({ wi, label: MONTHS[m] })
+        }
+      }
+    }
+  })
+
+  const totalActive = Object.values(log).filter(v => v >= 1).length
+
+  return (
+    <div className="w-full">
+      {/* Scrollable heatmap */}
+      <div ref={scrollRef} className="overflow-x-auto scrollbar-none">
+        <div style={{ display: 'inline-block', minWidth: 'max-content' }}>
+          {/* Month labels */}
+          <div className="relative mb-1" style={{ height: '14px', paddingLeft: `${DAY_COL}px` }}>
+            {monthLabels.map(({ wi, label }) => (
+              <span
+                key={wi}
+                className="absolute text-gray-400 select-none"
+                style={{ left: `${DAY_COL + wi * colWidth}px`, fontSize: '9px', lineHeight: '14px', whiteSpace: 'nowrap' }}
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="flex" style={{ gap: `${GAP}px` }}>
+            {/* Day labels */}
+            <div className="flex flex-col text-gray-300 shrink-0" style={{ width: `${DAY_COL}px`, gap: `${GAP}px` }}>
+              {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
+                <div key={d} className="text-center" style={{ height: `${CELL}px`, lineHeight: `${CELL}px`, fontSize: '8px' }}>
+                  {['Mo','We','Fr'].includes(d) ? d : ''}
+                </div>
+              ))}
+            </div>
+
+            {/* Week columns */}
+            {weeks.map((week, wi) => (
+              <div key={wi} className="flex flex-col" style={{ gap: `${GAP}px` }}>
+                {week.map(day => (
+                  <div
+                    key={day.key}
+                    title={day.count < 0 ? '' : day.count === 0 ? `${day.key} — nothing solved` : `${day.key} — ${day.count} solved`}
+                    className={`rounded-sm ${cellColor(day.count)}`}
+                    style={{ width: `${CELL}px`, height: `${CELL}px` }}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <p className="text-xs text-gray-400 mt-2">
+        {totalActive} active day{totalActive !== 1 ? 's' : ''} · scroll left to see older months
+        {target === 0 && ' · darker = more solved'}
+      </p>
+    </div>
+  )
+}
